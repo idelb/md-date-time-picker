@@ -22,14 +22,6 @@
 		"input"
 	],
 	"devDependencies": {
-		"babel-core": "^6.10.4",
-    "babel-plugin-add-module-exports": "^0.2.1",
-    "babel-plugin-transform-es2015-modules-umd": "^6.8.0",
-    "babel-plugin-transform-member-expression-literals": "^6.8.0",
-    "babel-plugin-transform-merge-sibling-variables": "^6.8.0",
-    "babel-plugin-transform-minify-booleans": "^6.8.0",
-    "babel-plugin-transform-property-literals": "^6.8.0",
-    "babel-preset-es2015": "^6.9.0",
     "browser-sync": "^2.13.0",
     "chokidar": "^1.6.0",
     "del": "^2.2.1",

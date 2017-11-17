@@ -10,7 +10,7 @@
 * import necessary components
 */
 import moment from 'moment'
-import Draggabilly from 'draggabilly'
+import Draggabilly from 'Draggabilly'
 
 class mdDateTimePicker {
   /**
@@ -19,6 +19,7 @@ class mdDateTimePicker {
   * @method constructor
   *
   * @param  {String}   type = 'date' or 'time                           [type of dialog]
+  * @param  {Boolean}  addSeconds = false
   * @param  {moment}   init                                             [initial value for the dialog date or time, defaults to today] [@default = today]
   * @param  {moment}   past                                             [the past moment till which the calendar shall render] [@default = exactly 21 Years ago from init]
   * @param  {moment}   future                                           [the future moment till which the calendar shall render] [@default = init]
@@ -207,7 +208,7 @@ class mdDateTimePicker {
     * @type {Array}
     */
     const sDialogEls = [
-      'viewHolder', 'years', 'header', 'cancel', 'ok', 'left', 'right', 'previous', 'current', 'next', 'subtitle', 'title', 'titleDay', 'titleMonth', 'AM', 'PM', 'needle', 'hourView', 'minuteView', 'hour', 'minute', 'fakeNeedle', 'circularHolder', 'circle', 'dotSpan'
+      'viewHolder', 'years', 'header', 'cancel', 'ok', 'left', 'right', 'previous', 'current', 'next', 'subtitle', 'title', 'titleDay', 'titleMonth', 'AM', 'PM', 'needle', 'hourView', 'minuteView', 'secondView', 'hour', 'minute', 'second', 'fakeNeedle', 'circularHolder', 'circle', 'dotSpan'
     ]
     let i = sDialogEls.length
     while (i--) {
@@ -253,8 +254,10 @@ class mdDateTimePicker {
     const viewHolder = this._sDialog.viewHolder
     const AM = this._sDialog.AM
     const PM = this._sDialog.PM
+    // const second = this._sDialog.second
     const minute = this._sDialog.minute
     const hour = this._sDialog.hour
+    const secondView = this._sDialog.secondView
     const minuteView = this._sDialog.minuteView
     const hourView = this._sDialog.hourView
     const picker = this._sDialog.picker
@@ -282,6 +285,7 @@ class mdDateTimePicker {
       PM.classList.remove(active)
       minute.classList.remove(active)
       hour.classList.add(active)
+      secondView.classList.add(hidden)
       minuteView.classList.add(hidden)
       hourView.classList.remove(hidden)
       subtitle.setAttribute('style', 'display: none')
@@ -405,6 +409,8 @@ class mdDateTimePicker {
       const hour = document.createElement('span')
       const span = document.createElement('span')
       const minute = document.createElement('span')
+      const span2 = document.createElement('span')
+      const second = document.createElement('span')
       const subtitle = document.createElement('div')
       const AM = document.createElement('div')
       const PM = document.createElement('div')
@@ -413,6 +419,7 @@ class mdDateTimePicker {
       const dot = document.createElement('span')
       const line = document.createElement('span')
       const circle = document.createElement('span')
+      const secondView = document.createElement('div')
       const minuteView = document.createElement('div')
       const fakeNeedle = document.createElement('div')
       const hourView = document.createElement('div')
@@ -422,10 +429,12 @@ class mdDateTimePicker {
       this._addClass(title, 'title')
       this._addId(hour, 'hour')
       hour.classList.add('mddtp-picker__color--active')
-      span.textContent = ':'
+      span.textContent = span2.textContent = ':'
       this._addId(span, 'dotSpan')
       span.setAttribute('style', 'display: none')
       this._addId(minute, 'minute')
+      this._addId(span2, 'dotSpan2')
+      this._addId(second, 'second')
       this._addId(subtitle, 'subtitle')
       this._addClass(subtitle, 'subtitle')
       subtitle.setAttribute('style', 'display: none')
@@ -441,6 +450,8 @@ class mdDateTimePicker {
       title.appendChild(hour)
       title.appendChild(span)
       title.appendChild(minute)
+      title.appendChild(span2)
+      title.appendChild(second)
       subtitle.appendChild(AM)
       subtitle.appendChild(PM)
       // add them to header
@@ -455,6 +466,11 @@ class mdDateTimePicker {
       this._addClass(line, 'line')
       this._addId(circle, 'circle')
       this._addClass(circle, 'circle')
+      this._addId(secondView, 'secondView')
+      secondView.classList.add('mddtp-picker__circularView')
+      secondView.classList.add('mddtp-picker__circularView--hidden')
+      this._addId(fakeNeedle, 'fakeNeedle')
+      fakeNeedle.classList.add('mddtp-picker__circle--fake')
       this._addId(minuteView, 'minuteView')
       minuteView.classList.add('mddtp-picker__circularView')
       minuteView.classList.add('mddtp-picker__circularView--hidden')
@@ -468,9 +484,10 @@ class mdDateTimePicker {
       needle.appendChild(circle)
       // add them to circularHolder
       circularHolder.appendChild(needle)
+      circularHolder.appendChild(secondView)
       circularHolder.appendChild(minuteView)
-      circularHolder.appendChild(fakeNeedle)
       circularHolder.appendChild(hourView)
+      circularHolder.appendChild(fakeNeedle)
       // add them to body
       body.appendChild(circularHolder)
     }
@@ -503,6 +520,7 @@ class mdDateTimePicker {
   _initTimeDialog (m) {
     const hour = this._sDialog.hour
     const minute = this._sDialog.minute
+    const second = this._sDialog.second
     const subtitle = this._sDialog.subtitle
     const dotSpan = this._sDialog.dotSpan
     // switch according to 12 hour or 24 hour mode
@@ -530,13 +548,16 @@ class mdDateTimePicker {
       dotSpan.removeAttribute('style')
     }
     this._fillText(minute, m.format('mm'))
+    this._fillText(second, m.format('ss'))
     this._initHour()
     this._initMinute()
+    this._initSecond()
     this._attachEventHandlers()
     this._changeM()
     this._dragDial()
     this._switchToView(hour)
     this._switchToView(minute)
+    this._switchToView(second)
     this._addClockEvent()
     this._setButtonText()
   }
@@ -646,6 +667,44 @@ class mdDateTimePicker {
     }
     // set inner html accordingly
     minuteView.appendChild(docfrag)
+  }
+
+  _initSecond () {
+    const secondView = this._sDialog.secondView
+    let secondNow = parseInt(this._sDialog.tDate.format('m'), 10)
+    const sSecond = 'mddtp-second__selected'
+    const selected = 'mddtp-picker__cell--selected'
+    const rotate = 'mddtp-picker__cell--rotate-'
+    const cell = 'mddtp-picker__cell'
+    const docfrag = document.createDocumentFragment()
+
+    for (let i = 5, j = 10; i <= 60; i += 5, j += 10) {
+      const div = document.createElement('div')
+      const span = document.createElement('span')
+      div.classList.add(cell)
+      if (i === 60) {
+        span.textContent = this._numWithZero(0)
+      } else {
+        span.textContent = this._numWithZero(i)
+      }
+      if (secondNow === 0) {
+        secondNow = 60
+      }
+      div.classList.add(rotate + j)
+      // (secondNow === 1 && i === 60) for corner case highlight 00 at 01
+      if ((secondNow === i) || (secondNow - 1 === i) || (secondNow + 1 === i) || (secondNow === 1 && i === 60)) {
+        div.id = sSecond
+        div.classList.add(selected)
+      }
+      div.appendChild(span)
+      docfrag.appendChild(div)
+    }
+    // empty the hours
+    while (secondView.lastChild) {
+      secondView.removeChild(secondView.lastChild)
+    }
+    // set inner html accordingly
+    secondView.appendChild(docfrag)
   }
 
   /**
@@ -786,9 +845,9 @@ class mdDateTimePicker {
   }
 
   /**
-   * Points the needle to the correct hour or minute
+   * Points the needle to the correct hour, minute or second
    */
-  _pointNeedle (me) {
+  _pointNeedle (me, type) {
     let spoke = 60
     let value
     const circle = this._sDialog.circle
@@ -799,8 +858,8 @@ class mdDateTimePicker {
     // move the needle to correct position
     needle.className = ''
     needle.classList.add(selection)
-    if (!mdDateTimePicker.dialog.view) {
-      value = me._sDialog.sDate.format('m')
+    if (type !== 'hour') {
+      value = me._sDialog.sDate.format(((type === 'minute') ? 'm' : 's'))
 
       // Need to desactivate for the autoClose mode as it mess things up.  If you have an idea, feel free to give it a shot !
       if (me._autoClose !== true) {
@@ -868,22 +927,50 @@ class mdDateTimePicker {
   * @param  {type}          me [context]
   *
   */
-  _switchToTimeView (me) {
+  _switchToTimeView (me, type) {
     const hourView = me._sDialog.hourView
     const minuteView = me._sDialog.minuteView
+    const secondView = me._sDialog.secondView
     const hour = me._sDialog.hour
     const minute = me._sDialog.minute
+    const second = me._sDialog.second
     const activeClass = 'mddtp-picker__color--active'
     const hidden = 'mddtp-picker__circularView--hidden'
+    let tmpType = 'hour'
+
     // toggle view classes
-    hourView.classList.toggle(hidden)
-    minuteView.classList.toggle(hidden)
-    hour.classList.toggle(activeClass)
-    minute.classList.toggle(activeClass)
+    switch (type) {
+      case 'hour':
+        tmpType = 'minute'
+        hourView.classList.add(hidden)
+        minuteView.classList.remove(hidden)
+        secondView.classList.add(hidden)
+        hour.classList.remove(activeClass)
+        minute.classList.add(activeClass)
+        second.classList.remove(activeClass)
+        break
+      case 'minute':
+        tmpType = 'second'
+        hourView.classList.add(hidden)
+        minuteView.classList.add(hidden)
+        secondView.classList.remove(hidden)
+        hour.classList.remove(activeClass)
+        minute.classList.remove(activeClass)
+        second.classList.add(activeClass)
+        break
+      default:
+        hourView.classList.remove(hidden)
+        minuteView.classList.add(hidden)
+        secondView.classList.add(hidden)
+        hour.classList.add(activeClass)
+        minute.classList.remove(activeClass)
+        second.classList.remove(activeClass)
+        break
+    }
     // move the needle to correct position
     // toggle the view type
-    mdDateTimePicker.dialog.view = !mdDateTimePicker.dialog.view
-    me._pointNeedle(me)
+    mdDateTimePicker.dialog.view = type === 'hour'
+    me._pointNeedle(me, tmpType)
   }
   /**
   * [_switchToDateView the actual switchToDateView function so that it can be called by other elements as well]
@@ -929,6 +1016,7 @@ class mdDateTimePicker {
     const me = this
     const hourView = this._sDialog.hourView
     const minuteView = this._sDialog.minuteView
+    const secondView = this._sDialog.secondView
     const sClass = 'mddtp-picker__cell--selected'
     hourView.onclick = function (e) {
       const sHour = 'mddtp-hour__selected'
@@ -953,9 +1041,10 @@ class mdDateTimePicker {
         // set the display hour
         me._sDialog.hour.textContent = e.target.textContent
         // switch the view
-        me._pointNeedle(me)
+        me._pointNeedle(me, 'hour')
+
         setTimeout(() => {
-          me._switchToTimeView(me)
+          me._switchToTimeView(me, 'hour')
         }, 700)
       }
     }
@@ -977,10 +1066,39 @@ class mdDateTimePicker {
         me._sDialog.sDate.minute(setMinute)
         // set the display minute
         me._sDialog.minute.textContent = setMinute
-        me._pointNeedle(me)
+        me._pointNeedle(me, 'minute')
+
+        setTimeout(() => {
+          me._switchToTimeView(me, 'minute')
+        }, 700)
+      }
+    }
+    secondView.onclick = function (e) {
+      const sSecond = 'mddtp-second__selected'
+      const selectedSecond = document.getElementById(sSecond)
+      let setSecond = 0
+      if (e.target && e.target.nodeName === 'SPAN') {
+        // clear the previously selected hour
+        if (selectedSecond) {
+          selectedSecond.id = ''
+          selectedSecond.classList.remove(sClass)
+        }
+        // select the new second
+        e.target.parentNode.classList.add(sClass)
+        e.target.parentNode.id = sSecond
+        // set the sDate second
+        setSecond = e.target.textContent
+        me._sDialog.sDate.second(setSecond)
+        // set the display second
+        me._sDialog.second.textContent = setSecond
+        me._pointNeedle(me, 'second')
 
         if (me._autoClose === true) {
           me._sDialog.ok.onclick()
+        } else {
+          setTimeout(() => {
+            me._switchToTimeView(me, 'second')
+          }, 700)
         }
       }
     }

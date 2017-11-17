@@ -19,8 +19,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "gulp": "gulp",
     "cs": "npm run cs:js && npm run cs:scss",
-    "cs:js" : "eslint -c .eslintrc --fix src",
-    "cs:scss" : "scss-lint"
+    "cs:js": "eslint -c .eslintrc --fix src",
+    "cs:scss": "sass-lint"
   },
   "contributors": [
     "Seth Westphal (https://github.com/westy92)",
@@ -59,14 +59,14 @@
     "gulp-plumber": "1.1.0",
     "gulp-rename": "^1.2.0",
     "gulp-replace": "^0.5.4",
-    "gulp-sass": "^3.1.0",
     "gulp-uglify": "^2.1.0",
-    "node-sass": "^4.5.0",
-    "require-dir": "^0.3.1",
+    "require-dir": "^0.3.2",
     "run-sequence": "^1.2.2"
   },
   "dependencies": {
     "draggabilly": "^2.1.1",
+    "global": "^4.3.2",
+    "gulp-sass": "^3.1.0",
     "moment": "^2.17.1"
   },
   "repository": {
