@@ -102,7 +102,9 @@
           _ref$prevHandle = _ref.prevHandle,
           prevHandle = _ref$prevHandle === undefined ? '<div class="mddtp-prev-handle"></div>' : _ref$prevHandle,
           _ref$nextHandle = _ref.nextHandle,
-          nextHandle = _ref$nextHandle === undefined ? '<div class="mddtp-next-handle"></div>' : _ref$nextHandle;
+          nextHandle = _ref$nextHandle === undefined ? '<div class="mddtp-next-handle"></div>' : _ref$nextHandle,
+          _ref$container = _ref.container,
+          container = _ref$container === undefined ? document.getElementsByTagName('body').item(0) : _ref$container;
 
       _classCallCheck(this, mdDateTimePicker);
 
@@ -120,6 +122,7 @@
       this._inner24 = inner24;
       this._prevHandle = prevHandle;
       this._nextHandle = nextHandle;
+      this._container = container;
 
       /**
       * [dialog selected classes have the same structure as dialog but one level down]
@@ -215,6 +218,8 @@
             zoomIn = 'zoomIn';
 
         mdDateTimePicker.dialog.state = !0;
+        this._container.classList.remove('mddtp-picker--inactive');
+        this._container.classList.add(zoomIn);
         this._sDialog.picker.classList.remove('mddtp-picker--inactive');
         this._sDialog.picker.classList.add(zoomIn);
         // if the dialog is forced into portrait mode
@@ -276,6 +281,8 @@
         }
         setTimeout(function () {
           // remove portrait mode
+          me._container.classList.remove(zoomIn);
+          me._container.classList.add(inactive);
           me._sDialog.picker.classList.remove('mddtp-picker--portrait');
           me._sDialog.picker.classList.remove(zoomOut);
           me._sDialog.picker.classList.add(inactive);
@@ -493,7 +500,7 @@
         body.appendChild(action);
         docfrag.appendChild(container);
         // add the container to the end of body
-        document.getElementsByTagName('body').item(0).appendChild(docfrag);
+        this._container.appendChild(docfrag);
       }
     }, {
       key: '_initTimeDialog',

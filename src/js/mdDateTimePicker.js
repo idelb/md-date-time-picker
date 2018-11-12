@@ -50,7 +50,8 @@ class mdDateTimePicker {
     autoClose = false,
     inner24 = false,
     prevHandle = '<div class="mddtp-prev-handle"></div>',
-    nextHandle = '<div class="mddtp-next-handle"></div>'
+    nextHandle = '<div class="mddtp-next-handle"></div>',
+    container = document.getElementsByTagName('body').item(0)
   }) {
     this._type = type
     this._init = init
@@ -66,6 +67,7 @@ class mdDateTimePicker {
     this._inner24 = inner24
     this._prevHandle = prevHandle
     this._nextHandle = nextHandle
+    this._container = container
 
     /**
     * [dialog selected classes have the same structure as dialog but one level down]
@@ -229,6 +231,8 @@ class mdDateTimePicker {
     const me = this
     const zoomIn = 'zoomIn'
     mdDateTimePicker.dialog.state = true
+    this._container.classList.remove('mddtp-picker--inactive')
+    this._container.classList.add(zoomIn)
     this._sDialog.picker.classList.remove('mddtp-picker--inactive')
     this._sDialog.picker.classList.add(zoomIn)
     // if the dialog is forced into portrait mode
@@ -294,6 +298,8 @@ class mdDateTimePicker {
     }
     setTimeout(() => {
       // remove portrait mode
+      me._container.classList.remove(zoomIn)
+      me._container.classList.add(inactive)
       me._sDialog.picker.classList.remove('mddtp-picker--portrait')
       me._sDialog.picker.classList.remove(zoomOut)
       me._sDialog.picker.classList.add(inactive)
@@ -510,7 +516,7 @@ class mdDateTimePicker {
     body.appendChild(action)
     docfrag.appendChild(container)
     // add the container to the end of body
-    document.getElementsByTagName('body').item(0).appendChild(docfrag)
+    this._container.appendChild(docfrag)
   }
 
   /**
